@@ -7,15 +7,24 @@
  * @throws Error 無効な日付形式の場合
  */
 function validateDateInput(dateInput: Date | string): Date {
+  logDebug("validateDateInput開始", {
+    input: dateInput,
+    type: typeof dateInput,
+    toString: Object.prototype.toString.call(dateInput),
+  });
+
   // Date オブジェクトの検出（より堅牢な方法）
   // Google Apps Script では instanceof Date が正しく動作しないことがあるため、
   // Object.prototype.toString を使用
   const isDateObject =
     Object.prototype.toString.call(dateInput) === "[object Date]";
 
+  logDebug("Date判定結果", { isDateObject });
+
   if (isDateObject) {
     const dateObj = dateInput as Date;
     if (!isNaN(dateObj.getTime())) {
+      logDebug("Dateオブジェクトとして処理", dateObj);
       return dateObj;
     } else {
       throw new Error("無効な日付オブジェクトです");
@@ -24,6 +33,8 @@ function validateDateInput(dateInput: Date | string): Date {
 
   // 文字列の場合は YYYY-MM-DD フォーマットをチェック
   const dateString = String(dateInput).trim();
+  logDebug("文字列として処理", dateString);
+  
   const regex = /^\d{4}-\d{2}-\d{2}$/;
   if (!regex.test(dateString)) {
     throw new Error(
@@ -36,6 +47,7 @@ function validateDateInput(dateInput: Date | string): Date {
     throw new Error(`無効な日付です。入力値: ${dateString}`);
   }
 
+  logDebug("文字列から変換完了", date);
   return date;
 }
 

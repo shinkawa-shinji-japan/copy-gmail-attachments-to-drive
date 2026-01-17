@@ -120,20 +120,32 @@ function getSearchConditions(): SearchConditions {
   const sheet = getSearchSheet();
   const data = sheet.getDataRange().getValues();
 
+  logDebug("=== シートからデータ取得 ===");
+  logDebug(`データ範囲: ${data.length}行`);
+  
+  // すべてのデータをログ出力
+  for (let i = 0; i < data.length; i++) {
+    logDebug(`行${i + 1}: [${data[i][0]}] = [${data[i][1]}] (型: ${typeof data[i][1]}, toString: ${Object.prototype.toString.call(data[i][1])})`);
+  }
+
   const conditions: Partial<SearchConditions> = {};
 
   for (let i = 1; i < data.length; i++) {
     const key = String(data[i][0]);
     const rawValue = data[i][1];
 
+    logDebug(`処理中: キー=[${key}], 値=[${rawValue}], 型=${typeof rawValue}`);
+
     switch (key) {
       case "期間（開始日）":
-        // Date オブジェクトまたは文字列をそのまま validateDateInput に渡す
+        logDebug("開始日の処理開始", rawValue);
         conditions.startDate = validateDateInput(rawValue);
+        logDebug("開始日の処理完了", conditions.startDate);
         break;
       case "期間（終了日）":
-        // Date オブジェクトまたは文字列をそのまま validateDateInput に渡す
+        logDebug("終了日の処理開始", rawValue);
         conditions.endDate = validateDateInput(rawValue);
+        logDebug("終了日の処理完了", conditions.endDate);
         break;
       case "フィルタ文字列":
         const filterValue =
@@ -146,10 +158,12 @@ function getSearchConditions(): SearchConditions {
         conditions.folderPath = pathValue.trim() || "/";
         break;
       default:
+        logDebug(`未知のキー: ${key}`);
         break;
     }
   }
 
+  logDebug("=== 最終的な検索条件 ===", conditions);
   return conditions as SearchConditions;
 }
 
