@@ -3,6 +3,7 @@
 ## Project Overview
 
 A Google Apps Script tool that extracts PDF attachments from Gmail within a specified date range and copies them to Google Drive folders. The app provides a spreadsheet-based UI using Google Sheets with two main sheets:
+
 - **検索条件 (Search Criteria)**: Input sheet for date ranges, keywords, and destination folder path
 - **結果 (Results)**: Output sheet showing search results with checkboxes for selective copying
 
@@ -11,12 +12,14 @@ A Google Apps Script tool that extracts PDF attachments from Gmail within a spec
 ### Core Module Structure (TypeScript)
 
 **`src/main.ts`** - UI orchestration layer
+
 - `onOpen()`: Creates custom menu "Gmail添付ファイル" with action items
 - `searchAndDisplay()`: Workflow for searching emails and populating Results sheet
 - `executeAndCopy()`: Workflow for processing checked rows and copying files
 - `initializeSheets()`: Creates required sheets with default headers/data
 
 **`src/gmail.ts`** - Gmail API wrapper
+
 - `searchEmails()`: Searches threads using Gmail query syntax (`is:attachment after:... before:...`)
 - `buildSearchQuery()`: Constructs Gmail search query with date range and keyword filters
 - `extractEmailAndAttachments()`: Extracts subject, date, and PDFs from message threads
@@ -24,12 +27,14 @@ A Google Apps Script tool that extracts PDF attachments from Gmail within a spec
 - Timezone-aware date handling via `SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone()`
 
 **`src/drive.ts`** - Google Drive API wrapper
+
 - `resolveFolderPath()`: Navigates/creates folder hierarchy from path string (e.g., `/year/2026/Jan`)
 - `fileExistsInFolder()`: Prevents duplicate file overwrites
 - `copyFileToFolder()`: Copies blob to Drive with error handling
 - `ensurePdfExtension()`: Ensures `.pdf` extension on filenames
 
 **`src/sheet.ts`** - Google Sheets API wrapper
+
 - `getSearchSheet()` / `getResultsSheet()`: Lazy initialization pattern
 - `getSearchConditions()`: Reads rows 2-5 from Search sheet into typed object
 - `getTargetRowsData()`: Reads checked rows from Results sheet
@@ -37,6 +42,7 @@ A Google Apps Script tool that extracts PDF attachments from Gmail within a spec
 - Handles checkbox state and formula generation for shared Drive links
 
 **`src/utils.ts`** - Common utilities
+
 - `validateDateInput()`: Parses YYYY-MM-DD strings or Date objects
 - `formatDateTime()`: Formats dates for display/logging
 - `logDebug()` / `logError()`: Logging with contextual objects
@@ -46,13 +52,19 @@ A Google Apps Script tool that extracts PDF attachments from Gmail within a spec
 ### Build & Deployment
 
 ```bash
+# Development workflow
 npm run build          # TypeScript → JavaScript (clasp push requires JS)
-npm run push           # Compile + push to GAS project
 npm run watch          # Watch mode for development
-npm run logs           # View execution logs via clasp
+
+# Deploy to Google Apps Script
+yarn push             # Build + push compiled code to GAS project
+npm run logs          # View execution logs via clasp
 ```
 
+**Important**: After editing TypeScript source files, always run `yarn push` to compile and deploy the changes to Google Apps Script. The GAS editor will not reflect code changes until this command is executed.
+
 The `appsscript.json` declares required OAuth scopes:
+
 - `gmail.readonly` (search, read attachments)
 - `spreadsheets` (read/write sheets)
 - `drive` (create folders, copy files)
@@ -60,10 +72,11 @@ The `appsscript.json` declares required OAuth scopes:
 ### Error Handling Pattern
 
 All async Google Apps Script API calls are wrapped in try-catch:
+
 ```typescript
 try {
   // API call
-  logDebug("Step context", {detailKey: value});
+  logDebug("Step context", { detailKey: value });
   return result;
 } catch (error) {
   const err = error as Error;
@@ -77,6 +90,7 @@ Errors bubble up to `main.ts` functions which display alerts via `SpreadsheetApp
 ### Type Definitions
 
 Custom types for data contracts between modules:
+
 - `EmailData`: {subject, date, attachments[], messageId}
 - `SearchConditions`: {startDate, endDate, keywords[], folderPath}
 - `ResultRow`: Matches Results sheet columns
@@ -85,6 +99,7 @@ Custom types for data contracts between modules:
 ### Timezone Handling
 
 **Critical**: All date operations respect the spreadsheet's timezone:
+
 - Input dates from sheet are assumed local to spreadsheet timezone
 - Gmail query dates formatted with `Utilities.formatDate(date, timezone, "yyyy/MM/dd")`
 - No timezone conversion—dates flow directly through system
@@ -92,6 +107,7 @@ Custom types for data contracts between modules:
 ## Sheets UI Structure
 
 ### Search Sheet (検索条件)
+
 ```
 | 項目              | 値         |
 |-------------------|----------|
@@ -102,6 +118,7 @@ Custom types for data contracts between modules:
 ```
 
 ### Results Sheet (結果)
+
 Columns: 保存対象 (checkbox) | メールタイトル | 受信日時 | 添付ファイル名 | 保存ファイル名 | 保存先フォルダ名 | 処理結果 | ファイルリンク
 
 ## Integration Points & Dependencies

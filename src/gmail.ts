@@ -40,8 +40,7 @@ function buildSearchQuery(
   keywords: string[],
 ): string {
   // ユーザーのタイムゾーンを取得
-  const userTimezone =
-    SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const userTimezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   logDebug("buildSearchQuery", { userTimezone, startDate, endDate });
 
   // 入力された日付をユーザーのタイムゾーンで日付文字列にフォーマット
@@ -50,7 +49,8 @@ function buildSearchQuery(
 
   logDebug("フォーマット後の日付", { startStr, endStr });
 
-  let query = `is:attachment after:${startStr} before:${endStr}`;
+  // has:attachment で添付ファイル有無、filename:pdf でPDF形式に限定
+  let query = `has:attachment filename:pdf after:${startStr} before:${endStr}`;
 
   if (keywords && keywords.length > 0) {
     const keywordClause = keywords.map((kw) => `subject:(${kw})`).join(" OR ");

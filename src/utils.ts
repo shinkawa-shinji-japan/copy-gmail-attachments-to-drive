@@ -4,8 +4,6 @@
 
 /**
  * 日付文字列（YYYY-MM-DD）またはDateオブジェクトをDateオブジェクトに変換
- * Dateオブジェクトの場合、Google Sheetの表示値（ローカル日付）から
- * 日付部分を抽出して新しいDateオブジェクトを作成する
  * @throws Error 無効な日付形式の場合
  */
 function validateDateInput(dateInput: Date | string): Date {
@@ -16,6 +14,8 @@ function validateDateInput(dateInput: Date | string): Date {
   });
 
   // Date オブジェクトの検出（より堅牢な方法）
+  // Google Apps Script では instanceof Date が正しく動作しないことがあるため、
+  // Object.prototype.toString を使用
   const isDateObject =
     Object.prototype.toString.call(dateInput) === "[object Date]";
 
@@ -24,23 +24,8 @@ function validateDateInput(dateInput: Date | string): Date {
   if (isDateObject) {
     const dateObj = dateInput as Date;
     if (!isNaN(dateObj.getTime())) {
-      // Google SheetのDate値から、表示されている日付（ローカル時間）を抽出
-      // Google Sheetの日付セルは内部的にはシートのタイムゾーン設定時刻で保持されている
-      // しかし表示時間をもとに、YYYY-MM-DD の日付文字列を生成して再度Dateに変換する
-      // これにより、タイムゾーン設定に関わらず、ユーザーが見た日付で検索できる
-      
-      // formatDateTime はシートのタイムゾーン設定を無視し、UTC値を直接フォーマットするため
-      // 代わりに、Utilities.formatDate を使用してシートのタイムゾーンで日付を取得
-      const tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
-      const dateStr = Utilities.formatDate(dateObj, tz, "yyyy-MM-dd");
-      
-      logDebug("Date オブジェクトからローカル日付を抽出", { dateObj, tz, dateStr });
-      
-      // その日付の00:00 UTC を作成
-      const normalizedDate = new Date(dateStr);
-      logDebug("正規化後のDate", normalizedDate);
-      
-      return normalizedDate;
+      logDebug("Dateオブジェクトとして処理", dateObj);
+      return dateObj;
     } else {
       throw new Error("無効な日付オブジェクトです");
     }
@@ -49,7 +34,7 @@ function validateDateInput(dateInput: Date | string): Date {
   // 文字列の場合は YYYY-MM-DD フォーマットをチェック
   const dateString = String(dateInput).trim();
   logDebug("文字列として処理", dateString);
-
+  
   const regex = /^\d{4}-\d{2}-\d{2}$/;
   if (!regex.test(dateString)) {
     throw new Error(
