@@ -1,112 +1,112 @@
-# Copilot Instructions: Gmail Attachments to Drive
+# Copilot 説明: Gmail 添付ファイルを Drive にコピー
 
-## Project Overview
+## プロジェクト概要
 
-A Google Apps Script tool that extracts PDF attachments from Gmail within a specified date range and copies them to Google Drive folders. The app provides a spreadsheet-based UI using Google Sheets with two main sheets:
+指定された日付範囲内の Gmail から PDF 添付ファイルを抽出し、Google Drive フォルダにコピーする Google Apps Script ツール。アプリは Google Sheets を使用したスプレッドシートベースの UI を提供し、2つのメインシートがあります:
 
-- **検索条件 (Search Criteria)**: Input sheet for date ranges, keywords, and destination folder path
-- **結果 (Results)**: Output sheet showing search results with checkboxes for selective copying
+- **検索条件**: 日付範囲、キーワード、保存先フォルダパスを入力するシート
+- **結果**: 検索結果をチェックボックス付きで表示するシート
 
-## Architecture & Data Flow
+## アーキテクチャとデータフロー
 
-### Core Module Structure (TypeScript)
+### コアモジュール構造（TypeScript）
 
-**`src/main.ts`** - UI orchestration layer
+**`src/main.ts`** - UI オーケストレーションレイヤー
 
-- `onOpen()`: Creates custom menu "Gmail添付ファイル" with action items
-- `searchAndDisplay()`: Workflow for searching emails and populating Results sheet
-- `executeAndCopy()`: Workflow for processing checked rows and copying files
-- `initializeSheets()`: Creates required sheets with default headers/data
+- `onOpen()`: カスタムメニュー「Gmail添付ファイル」とアクションアイテムを作成
+- `searchAndDisplay()`: メール検索と結果シートの入力ワークフロー
+- `executeAndCopy()`: チェック済み行の処理とファイルコピーワークフロー
+- `initializeSheets()`: デフォルトヘッダー/データで必要なシートを作成
 
-**`src/gmail.ts`** - Gmail API wrapper
+**`src/gmail.ts`** - Gmail API ラッパー
 
-- `searchEmails()`: Searches threads using Gmail query syntax (`is:attachment after:... before:...`)
-- `buildSearchQuery()`: Constructs Gmail search query with date range and keyword filters
-- `extractEmailAndAttachments()`: Extracts subject, date, and PDFs from message threads
-- `getPdfAttachments()`: Filters PDF files from message attachments
-- Timezone-aware date handling via `SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone()`
+- `searchEmails()`: Gmail クエリ構文（`is:attachment after:... before:...`）を使用してスレッドを検索
+- `buildSearchQuery()`: 日付範囲とキーワードフィルタで Gmail 検索クエリを構築
+- `extractEmailAndAttachments()`: メールスレッドからサブジェクト、日付、PDF を抽出
+- `getPdfAttachments()`: メール添付ファイルから PDF ファイルをフィルタリング
+- `SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone()` によるタイムゾーン対応の日付処理
 
-**`src/drive.ts`** - Google Drive API wrapper
+**`src/drive.ts`** - Google Drive API ラッパー
 
-- `resolveFolderPath()`: Navigates/creates folder hierarchy from path string (e.g., `/year/2026/Jan`)
-- `fileExistsInFolder()`: Prevents duplicate file overwrites
-- `copyFileToFolder()`: Copies blob to Drive with error handling
-- `ensurePdfExtension()`: Ensures `.pdf` extension on filenames
+- `resolveFolderPath()`: パス文字列（例：`/year/2026/Jan`）からフォルダ階層をナビゲート/作成
+- `fileExistsInFolder()`: 重複ファイルの上書きを防止
+- `copyFileToFolder()`: エラーハンドリング付きで Drive にブロブをコピー
+- `ensurePdfExtension()`: ファイル名に `.pdf` 拡張子を確保
 
-**`src/sheet.ts`** - Google Sheets API wrapper
+**`src/sheet.ts`** - Google Sheets API ラッパー
 
-- `getSearchSheet()` / `getResultsSheet()`: Lazy initialization pattern
-- `getSearchConditions()`: Reads rows 2-5 from Search sheet into typed object
-- `getTargetRowsData()`: Reads checked rows from Results sheet
-- `addResultRows()`: Batch inserts result data with formulas for Drive links
-- Handles checkbox state and formula generation for shared Drive links
+- `getSearchSheet()` / `getResultsSheet()`: 遅延初期化パターン
+- `getSearchConditions()`: 検索シートの 2～5 行を型付きオブジェクトに読み込む
+- `getTargetRowsData()`: 結果シートのチェック済み行を読み込む
+- `addResultRows()`: Drive リンク用の数式を含む結果データをバッチ挿入
+- チェックボックス状態と共有 Drive リンク用の数式生成を処理
 
-**`src/utils.ts`** - Common utilities
+**`src/utils.ts`** - 共通ユーティリティ
 
-- `validateDateInput()`: Parses YYYY-MM-DD strings or Date objects
-- `formatDateTime()`: Formats dates for display/logging
-- `logDebug()` / `logError()`: Logging with contextual objects
+- `validateDateInput()`: YYYY-MM-DD 文字列または Date オブジェクトを解析
+- `formatDateTime()`: 表示/ログ用に日付をフォーマット
+- `logDebug()` / `logError()`: コンテキストオブジェクト付きログ
 
-## Key Development Patterns
+## 主要開発パターン
 
-### Build & Deployment
+### ビルドとデプロイ
 
 ```bash
-# Development workflow
-npm run build          # TypeScript → JavaScript (clasp push requires JS)
-npm run watch          # Watch mode for development
+# 開発ワークフロー
+yarn build          # TypeScript → JavaScript (clasp push は JS が必要)
+yarn watch          # 開発用ウォッチモード
 
-# Deploy to Google Apps Script
-yarn push             # Build + push compiled code to GAS project
-npm run logs          # View execution logs via clasp
+# Google Apps Script にデプロイ
+yarn push             # コンパイルして GAS プロジェクトにコードをプッシュ
+yarn logs          # clasp 経由で実行ログを表示
 ```
 
-**Important**: After editing TypeScript source files, always run `yarn push` to compile and deploy the changes to Google Apps Script. The GAS editor will not reflect code changes until this command is executed.
+**重要**: TypeScript ソースファイルを編集した後は、必ず `yarn push` を実行して Google Apps Script にコンパイルとデプロイを行います。このコマンドを実行するまで、GAS エディタに変更が反映されません。
 
-The `appsscript.json` declares required OAuth scopes:
+`appsscript.json` は必要な OAuth スコープを宣言しています:
 
-- `gmail.readonly` (search, read attachments)
-- `spreadsheets` (read/write sheets)
-- `drive` (create folders, copy files)
+- `gmail.readonly`（メール検索、添付ファイル読み込み）
+- `spreadsheets`（シート読み書き）
+- `drive`（フォルダ作成、ファイルコピー）
 
-### Error Handling Pattern
+### エラーハンドリングパターン
 
-All async Google Apps Script API calls are wrapped in try-catch:
+すべての非同期 Google Apps Script API 呼び出しは try-catch でラップされます:
 
 ```typescript
 try {
-  // API call
-  logDebug("Step context", { detailKey: value });
+  // API 呼び出し
+  logDebug("ステップコンテキスト", { detailKey: value });
   return result;
 } catch (error) {
   const err = error as Error;
-  logError("Operation name", err.message);
-  throw new Error(`User-friendly message: ${err.message}`);
+  logError("操作名", err.message);
+  throw new Error(`ユーザーフレンドリーなメッセージ: ${err.message}`);
 }
 ```
 
-Errors bubble up to `main.ts` functions which display alerts via `SpreadsheetApp.getUi().alert()`.
+エラーは `main.ts` の関数にバブルアップされ、`SpreadsheetApp.getUi().alert()` 経由でアラートを表示します。
 
-### Type Definitions
+### 型定義
 
-Custom types for data contracts between modules:
+モジュール間のデータコントラクト用のカスタム型:
 
 - `EmailData`: {subject, date, attachments[], messageId}
 - `SearchConditions`: {startDate, endDate, keywords[], folderPath}
-- `ResultRow`: Matches Results sheet columns
+- `ResultRow`: 結果シートの列に対応
 - `CopyResult`: {success, fileId?, error?}
 
-### Timezone Handling
+### タイムゾーン処理
 
-**Critical**: All date operations respect the spreadsheet's timezone:
+**重要**: すべての日付操作はスプレッドシートのタイムゾーンを考慮します:
 
-- Input dates from sheet are assumed local to spreadsheet timezone
-- Gmail query dates formatted with `Utilities.formatDate(date, timezone, "yyyy/MM/dd")`
-- No timezone conversion—dates flow directly through system
+- シートから入力される日付はスプレッドシートのタイムゾーンに基づくローカル時間と見なされます
+- Gmail クエリ日付は `Utilities.formatDate(date, timezone, "yyyy/MM/dd")` でフォーマットされます
+- タイムゾーン変換なし—日付はシステム全体を通じて直接流れます
 
-## Sheets UI Structure
+## シート UI 構造
 
-### Search Sheet (検索条件)
+### 検索シート（検索条件）
 
 ```
 | 項目              | 値         |
@@ -117,21 +117,21 @@ Custom types for data contracts between modules:
 | 保存先フォルダパス | /project/pdfs |
 ```
 
-### Results Sheet (結果)
+### 結果シート（結果）
 
-Columns: 保存対象 (checkbox) | メールタイトル | 受信日時 | 添付ファイル名 | 保存ファイル名 | 保存先フォルダ名 | 処理結果 | ファイルリンク
+列: 保存対象 (チェックボックス) | メールタイトル | 受信日時 | 添付ファイル名 | 保存ファイル名 | 保存先フォルダ名 | 処理結果 | ファイルリンク
 
-## Integration Points & Dependencies
+## 統合ポイント & 依存関係
 
-- **GmailApp**: Thread search, message metadata, attachment blobs
-- **DriveApp**: Folder navigation, file creation, duplicate detection
-- **SpreadsheetApp**: Sheet access, range operations, timezone info
-- **Utilities**: Date formatting, type checking
+- **GmailApp**: スレッド検索、メールメタデータ、添付ファイル Blob
+- **DriveApp**: フォルダナビゲーション、ファイル作成、重複検出
+- **SpreadsheetApp**: シートアクセス、範囲操作、タイムゾーン情報
+- **Utilities**: 日付フォーマット、型チェック
 
-## Critical Considerations
+## 重要な考慮事項
 
-1. **PDF-only filtering**: Non-PDF attachments are silently skipped
-2. **Timezone awareness**: Date strings from sheet assume spreadsheet timezone
-3. **Duplicate prevention**: Files with identical names in same folder are skipped (not overwritten)
-4. **Batch operations**: `addResultRows()` uses batch inserts for performance
-5. **Search limitations**: Gmail search syntax supports date ranges but not fine-grained time filtering
+1. **PDF のみフィルタリング**: PDF 以外の添付ファイルは静かにスキップされます
+2. **タイムゾーン認識**: シートの日付文字列はスプレッドシートのタイムゾーンと見なされます
+3. **重複防止**: 同じフォルダ内に同じ名前のファイルがある場合はスキップされます（上書きされません）
+4. **バッチ操作**: `addResultRows()` はパフォーマンスのためバッチ挿入を使用します
+5. **検索の制限**: Gmail 検索構文は日付範囲をサポートしていますが、細かい時刻フィルタリングはできません

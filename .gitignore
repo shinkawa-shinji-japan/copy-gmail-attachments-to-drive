@@ -8,6 +8,8 @@ yarn.lock
 .clasp.json
 .claspignore
 
+oauth-client.json
+
 # IDE
 .vscode/
 .idea/
