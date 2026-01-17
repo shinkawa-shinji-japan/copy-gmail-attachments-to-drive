@@ -1,0 +1,19 @@
+{
+  "name": "copy-gmail-attachments-to-drive",
+  "version": "1.0.0",
+  "description": "Gmail添付ファイルをGoogleドライブにコピーするGoogle Apps Scriptツール",
+  "scripts": {
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "open": "clasp open",
+    "logs": "clasp logs",
+    "version": "clasp version",
+    "deploy": "clasp deploy --description 'Production deployment'"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
