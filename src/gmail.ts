@@ -12,6 +12,7 @@ type EmailData = {
   date: Date;
   attachments: PdfAttachment[];
   messageId: string;
+  body: string; // メール本文
 };
 
 function searchEmails(
@@ -40,7 +41,8 @@ function buildSearchQuery(
   keywords: string[],
 ): string {
   // ユーザーのタイムゾーンを取得
-  const userTimezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const userTimezone =
+    SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   logDebug("buildSearchQuery", { userTimezone, startDate, endDate });
 
   // 入力された日付をユーザーのタイムゾーンで日付文字列にフォーマット
@@ -75,6 +77,7 @@ function extractEmailAndAttachments(
     const subject = message.getSubject();
     const date = new Date(message.getDate().getTime());
     const attachments = getPdfAttachments(message);
+    const body = message.getPlainBody();
 
     if (attachments.length === 0) {
       return null;
@@ -85,6 +88,7 @@ function extractEmailAndAttachments(
       date,
       attachments,
       messageId: message.getId(),
+      body,
     };
   } catch (error) {
     const err = error as Error;

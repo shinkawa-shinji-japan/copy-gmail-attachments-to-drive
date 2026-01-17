@@ -126,3 +126,59 @@ function copyMultipleFiles(
 function generateDriveLink(fileId: string): string {
   return createDriveLink(fileId);
 }
+
+function generateFolderLink(folderId: string): string {
+  return `https://drive.google.com/drive/folders/${folderId}`;
+}
+
+type FolderInfo = {
+  id: string;
+  name: string;
+  path: string;
+  link: string;
+};
+
+function listDriveFolders(maxDepth: number = 5): FolderInfo[] {
+  const folders: FolderInfo[] = [];
+  const rootFolder = DriveApp.getRootFolder();
+
+  function traverseFolder(
+    folder: GoogleAppsScript.Drive.Folder,
+    currentPath: string,
+    depth: number,
+  ): void {
+    if (depth > maxDepth) {
+      return;
+    }
+
+    const subfolders = folder.getFolders();
+    while (subfolders.hasNext()) {
+      const subfolder = subfolders.next();
+      const folderName = subfolder.getName();
+      const folderPath = currentPath + "/" + folderName;
+
+      folders.push({
+        id: subfolder.getId(),
+        name: folderName,
+        path: folderPath,
+        link: generateFolderLink(subfolder.getId()),
+      });
+
+      // 再帰的にサブフォルダを探索
+      traverseFolder(subfolder, folderPath, depth + 1);
+    }
+  }
+
+  // ルートフォルダも追加
+  folders.push({
+    id: rootFolder.getId(),
+    name: "(ルート)",
+    path: "/",
+    link: generateFolderLink(rootFolder.getId()),
+  });
+
+  // ルート直下から探索開始
+  traverseFolder(rootFolder, "", 0);
+
+  return folders;
+}
