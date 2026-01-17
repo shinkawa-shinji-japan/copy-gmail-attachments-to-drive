@@ -7,10 +7,16 @@
  * @throws Error 無効な日付形式の場合
  */
 function validateDateInput(dateInput: Date | string): Date {
-  // Date オブジェクトの場合はそのまま返す
-  if (dateInput instanceof Date) {
-    if (!isNaN(dateInput.getTime())) {
-      return dateInput;
+  // Date オブジェクトの検出（より堅牢な方法）
+  // Google Apps Script では instanceof Date が正しく動作しないことがあるため、
+  // Object.prototype.toString を使用
+  const isDateObject =
+    Object.prototype.toString.call(dateInput) === "[object Date]";
+
+  if (isDateObject) {
+    const dateObj = dateInput as Date;
+    if (!isNaN(dateObj.getTime())) {
+      return dateObj;
     } else {
       throw new Error("無効な日付オブジェクトです");
     }
