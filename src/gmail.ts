@@ -39,8 +39,15 @@ function buildSearchQuery(
   endDate: Date,
   keywords: string[],
 ): string {
-  const startStr = Utilities.formatDate(startDate, "Asia/Tokyo", "yyyy/MM/dd");
-  const endStr = Utilities.formatDate(endDate, "Asia/Tokyo", "yyyy/MM/dd");
+  // ユーザーのタイムゾーンを取得
+  const userTimezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  logDebug("buildSearchQuery", { userTimezone, startDate, endDate });
+
+  // 入力された日付をユーザーのタイムゾーンで日付文字列にフォーマット
+  const startStr = Utilities.formatDate(startDate, userTimezone, "yyyy/MM/dd");
+  const endStr = Utilities.formatDate(endDate, userTimezone, "yyyy/MM/dd");
+
+  logDebug("フォーマット後の日付", { startStr, endStr });
 
   let query = `is:attachment after:${startStr} before:${endStr}`;
 
@@ -49,6 +56,7 @@ function buildSearchQuery(
     query += ` (${keywordClause})`;
   }
 
+  logDebug("最終Gmail検索クエリ", query);
   return query;
 }
 

@@ -16,6 +16,7 @@ function searchAndDisplay(): void {
   try {
     logDebug("=== 検索フロー開始 ===");
 
+    logDebug("getSearchConditions呼び出し直前");
     const conditions = getSearchConditions();
     logDebug("検索条件を取得", {
       startDate: formatDateTime(conditions.startDate),
@@ -73,6 +74,9 @@ function searchAndDisplay(): void {
   } catch (error) {
     const err = error as Error;
     logError("検索フローエラー", err.message);
+    if (err.stack) {
+      logError("スタックトレース", err.stack);
+    }
     SpreadsheetApp.getUi().alert("エラーが発生しました:\n" + err.message);
   }
 }
