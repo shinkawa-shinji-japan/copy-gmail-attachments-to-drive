@@ -118,14 +118,14 @@ function initializeResultsSheet(
 
 function getSearchConditions(): SearchConditions {
   logDebug("getSearchConditions開始");
-  
+
   const sheet = getSearchSheet();
   logDebug("シート取得完了", sheet.getName());
-  
+
   const data = sheet.getDataRange().getValues();
   logDebug("=== シートからデータ取得 ===");
   logDebug(`データ範囲: ${data.length}行 x ${data[0]?.length || 0}列`);
-  
+
   // すべてのデータをログ出力
   for (let i = 0; i < data.length; i++) {
     const col0 = data[i][0];
@@ -133,8 +133,10 @@ function getSearchConditions(): SearchConditions {
     const col0Type = typeof col0;
     const col1Type = typeof col1;
     const col1ToString = Object.prototype.toString.call(col1);
-    
-    Logger.log(`行${i + 1}: キー=[${col0}](型:${col0Type}), 値=[${col1}](型:${col1Type}, toString:${col1ToString})`);
+
+    Logger.log(
+      `行${i + 1}: キー=[${col0}](型:${col0Type}), 値=[${col1}](型:${col1Type}, toString:${col1ToString})`,
+    );
   }
 
   const conditions: Partial<SearchConditions> = {};

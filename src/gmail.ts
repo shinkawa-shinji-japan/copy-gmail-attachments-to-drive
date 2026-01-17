@@ -40,7 +40,8 @@ function buildSearchQuery(
   keywords: string[],
 ): string {
   // ユーザーのタイムゾーンを取得
-  const userTimezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const userTimezone =
+    SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   logDebug("buildSearchQuery", { userTimezone, startDate, endDate });
 
   // 入力された日付をユーザーのタイムゾーンで日付文字列にフォーマット
