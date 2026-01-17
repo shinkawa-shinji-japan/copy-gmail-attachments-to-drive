@@ -64,7 +64,7 @@ function extractEmailAndAttachments(
     const message = messages[messages.length - 1];
 
     const subject = message.getSubject();
-    const date = message.getDate();
+    const date = new Date(message.getDate().getTime());
     const attachments = getPdfAttachments(message);
 
     if (attachments.length === 0) {
@@ -92,12 +92,12 @@ function getPdfAttachments(
     const pdfAttachments: PdfAttachment[] = [];
 
     allAttachments.forEach((attachment) => {
-      const fileName = attachment.getFileName();
+      const fileName = attachment.getName();
 
       if (fileName.toLowerCase().endsWith(".pdf")) {
         pdfAttachments.push({
           name: fileName,
-          blob: attachment,
+          blob: attachment.copyBlob(),
         });
       }
     });

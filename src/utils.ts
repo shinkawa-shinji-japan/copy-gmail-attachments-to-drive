@@ -3,10 +3,21 @@
  */
 
 /**
- * 日付文字列（YYYY-MM-DD）をDateオブジェクトに変換
+ * 日付文字列（YYYY-MM-DD）またはDateオブジェクトをDateオブジェクトに変換
  * @throws Error 無効な日付形式の場合
  */
-function validateDateInput(dateString: string): Date {
+function validateDateInput(dateInput: Date | string): Date {
+  // Date オブジェクトの場合はそのまま返す
+  if (dateInput instanceof Date) {
+    if (!isNaN(dateInput.getTime())) {
+      return dateInput;
+    } else {
+      throw new Error("無効な日付オブジェクトです");
+    }
+  }
+
+  // 文字列の場合は YYYY-MM-DD フォーマットをチェック
+  const dateString = String(dateInput).trim();
   const regex = /^\d{4}-\d{2}-\d{2}$/;
   if (!regex.test(dateString)) {
     throw new Error(

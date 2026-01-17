@@ -125,21 +125,25 @@ function getSearchConditions(): SearchConditions {
   for (let i = 1; i < data.length; i++) {
     const key = String(data[i][0]);
     const rawValue = data[i][1];
-    const value =
-      rawValue === null || rawValue === undefined ? "" : String(rawValue);
 
     switch (key) {
       case "期間（開始日）":
-        conditions.startDate = validateDateInput(value);
+        // Date オブジェクトまたは文字列をそのまま validateDateInput に渡す
+        conditions.startDate = validateDateInput(rawValue);
         break;
       case "期間（終了日）":
-        conditions.endDate = validateDateInput(value);
+        // Date オブジェクトまたは文字列をそのまま validateDateInput に渡す
+        conditions.endDate = validateDateInput(rawValue);
         break;
       case "フィルタ文字列":
-        conditions.keywords = parseKeywords(value);
+        const filterValue =
+          rawValue === null || rawValue === undefined ? "" : String(rawValue);
+        conditions.keywords = parseKeywords(filterValue);
         break;
       case "保存先フォルダパス":
-        conditions.folderPath = value.trim() || "/";
+        const pathValue =
+          rawValue === null || rawValue === undefined ? "" : String(rawValue);
+        conditions.folderPath = pathValue.trim() || "/";
         break;
       default:
         break;
