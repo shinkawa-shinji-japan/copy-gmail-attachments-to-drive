@@ -1,14 +1,12 @@
 /**
- * ユーティリティ関数集
+ * ユーティリティ関数集 (TypeScript)
  */
 
 /**
  * 日付文字列（YYYY-MM-DD）をDateオブジェクトに変換
- * @param {string} dateString - 日付文字列（YYYY-MM-DD形式）
- * @returns {Date} - Dateオブジェクト
- * @throws {Error} - 無効な日付形式の場合
+ * @throws Error 無効な日付形式の場合
  */
-function validateDateInput(dateString) {
+function validateDateInput(dateString: string): Date {
   const regex = /^\d{4}-\d{2}-\d{2}$/;
   if (!regex.test(dateString)) {
     throw new Error(
@@ -26,10 +24,8 @@ function validateDateInput(dateString) {
 
 /**
  * Dateオブジェクトを YYYY-MM-DD HH:MM:SS 形式の文字列に変換
- * @param {Date} date - Dateオブジェクト
- * @returns {string} - フォーマットされた日付文字列
  */
-function formatDateTime(date) {
+function formatDateTime(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -42,16 +38,14 @@ function formatDateTime(date) {
 
 /**
  * ファイル名に.pdf拡張子が付いているか確認し、なければ付与
- * @param {string} fileName - ファイル名
- * @returns {string} - .pdf拡張子が付いたファイル名
  */
-function ensurePdfExtension(fileName) {
+function ensurePdfExtension(fileName: string): string {
   if (!fileName) {
     throw new Error("ファイル名が空です");
   }
 
   if (!fileName.toLowerCase().endsWith(".pdf")) {
-    return fileName + ".pdf";
+    return `${fileName}.pdf`;
   }
 
   return fileName;
@@ -59,10 +53,8 @@ function ensurePdfExtension(fileName) {
 
 /**
  * キーワード文字列（カンマ区切り）を配列に分割
- * @param {string} keywordString - キーワード文字列（カンマ区切り）
- * @returns {string[]} - キーワード配列
  */
-function parseKeywords(keywordString) {
+function parseKeywords(keywordString: string): string[] {
   if (!keywordString || keywordString.trim() === "") {
     return [];
   }
@@ -75,10 +67,8 @@ function parseKeywords(keywordString) {
 
 /**
  * Google Drive ファイルIDからアクセスリンクを生成
- * @param {string} fileId - Google Drive ファイルID
- * @returns {string} - Google Drive ファイルリンク
  */
-function createDriveLink(fileId) {
+function createDriveLink(fileId: string): string {
   if (!fileId) {
     throw new Error("ファイルIDが空です");
   }
@@ -88,11 +78,9 @@ function createDriveLink(fileId) {
 
 /**
  * Loggerでデバッグログを出力
- * @param {string} message - ログメッセージ
- * @param {any} data - ログデータ（オプション）
  */
-function logDebug(message, data = null) {
-  if (data) {
+function logDebug(message: string, data: unknown = null): void {
+  if (data !== null && data !== undefined) {
     Logger.log(`[DEBUG] ${message}: ${JSON.stringify(data)}`);
   } else {
     Logger.log(`[DEBUG] ${message}`);
@@ -101,11 +89,9 @@ function logDebug(message, data = null) {
 
 /**
  * Loggerで警告ログを出力
- * @param {string} message - ログメッセージ
- * @param {any} data - ログデータ（オプション）
  */
-function logWarn(message, data = null) {
-  if (data) {
+function logWarn(message: string, data: unknown = null): void {
+  if (data !== null && data !== undefined) {
     Logger.log(`[WARN] ${message}: ${JSON.stringify(data)}`);
   } else {
     Logger.log(`[WARN] ${message}`);
@@ -114,11 +100,9 @@ function logWarn(message, data = null) {
 
 /**
  * Loggerでエラーログを出力
- * @param {string} message - ログメッセージ
- * @param {any} data - ログデータ（オプション）
  */
-function logError(message, data = null) {
-  if (data) {
+function logError(message: string, data: unknown = null): void {
+  if (data !== null && data !== undefined) {
     Logger.log(`[ERROR] ${message}: ${JSON.stringify(data)}`);
   } else {
     Logger.log(`[ERROR] ${message}`);

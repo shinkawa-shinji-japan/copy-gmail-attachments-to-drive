@@ -3,17 +3,21 @@
   "version": "1.0.0",
   "description": "Gmail添付ファイルをGoogleドライブにコピーするGoogle Apps Scriptツール",
   "scripts": {
-    "push": "clasp push",
+    "build": "tsc",
+    "push": "npm run build && clasp push",
     "pull": "clasp pull",
     "open": "clasp open",
     "logs": "clasp logs",
+    "watch": "tsc --watch",
     "version": "clasp version",
-    "deploy": "clasp deploy --description 'Production deployment'"
+    "deploy": "npm run build && clasp deploy --description 'Production deployment'"
   },
   "devDependencies": {
-    "@google/clasp": "^2.4.2"
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.83",
+    "typescript": "^5.6.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   }
 }
